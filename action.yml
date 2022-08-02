@@ -1,0 +1,24 @@
+name: 'Project Access'
+author: 'NeroGM'
+description: 'Edit a Github Project (V2).'
+inputs:
+  project-url:
+    description: 'The URL of the Github Project.'
+    required: true
+outputs:
+  some-output:
+    description: "Output testing"
+    value: ${{ steps.outputGen.outputs.something }}
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        Write-Output "URL input : ${{ inputs.project-url }}."
+      shell: pwsh
+    - id: outputGen
+      run: echo "::set-output name=something::tralala"
+      shell: pwsh
+    - run: Write-Output "${{ github.action_path }}" >> $GITHUB_PATH
+      shell: pwsh
+    - run: ${{ github.action_path }}/src/getFieldIds.ps1
+      shell: pwsh
