@@ -30,5 +30,8 @@ runs:
   using: "composite"
   steps:
     - name: Processing request...
-      run: ${{ github.action_path }}/src/main.ps1 -token ${{ inputs.github-token }} -projectNumber ${{ inputs.project-number }}
+      run: >
+        ${{ github.action_path }}/src/main.ps1
+        -token ${{ inputs.github-token }}
+        -projectNumber ${{ inputs.project-number }}
       shell: pwsh
