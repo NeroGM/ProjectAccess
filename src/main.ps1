@@ -9,10 +9,12 @@ Param(
     [string]$editFields=""
 )
 
+##### Authentication
+
 $Env:GH_TOKEN=$token;
 
 Write-Host "Fetching user info...";
 $userInfoQuery = gh api -H "Accept: application/vnd.github+json" /user;
 Write-Host "Query result: `r`n $userInfoQuery";
 Try { $userInfo = ConvertFrom-Json $userInfoQuery; }
-Catch { Write-Host "User info fetching failed. (Invalid token?)"; exit }
+Catch { Write-Host "User info fetching failed. (Invalid token?)"; exit 1; }
