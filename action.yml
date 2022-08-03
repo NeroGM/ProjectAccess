@@ -29,13 +29,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - run: |
-        Write-Output "URL input : ${{ inputs.project-url }}."
-      shell: pwsh
-    - id: outputGen
-      run: echo "::set-output name=something::tralala"
-      shell: pwsh
-    - run: Write-Output "${{ github.action_path }}" >> $GITHUB_PATH
-      shell: pwsh
-    - run: ${{ github.action_path }}/src/getFieldIds.ps1
+    - name: Processing request...
+      run: ${{ github.action_path }}/src/main.ps1 -token ${{ inputs.github-token }}
       shell: pwsh
