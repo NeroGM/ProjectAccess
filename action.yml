@@ -8,7 +8,8 @@ inputs:
     required: true
   project-url:
     description: 'The URL of the Github Project.'
-    required: true
+  project-number:
+    description: 'The Github Project number.'
   get-items:
     description: 'Selectors for the items you want to fetch.'
   read-fields:
