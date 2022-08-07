@@ -74,7 +74,14 @@ function Register-ProjectItem {
 
         Write-Host '[ProjectAccess] Sending request...'
         $res = Invoke-RestMethod @params -StatusCodeVariable 'statusCode'
-        Write-Host "[ProjectAccess] Status code received: $statusCode"
+        Write-Host "[ProjectAccess] Request reponse status code: $statusCode"
+        if ($null -ne $res.errors) {
+            Write-Error "ERROR"
+            foreach ($err in $res.errors) {
+                Write-Error "$($err.type) --- $($err.message)"
+            }
+            return $null
+        }
         
         Write-Output $res
     }
