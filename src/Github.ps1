@@ -17,42 +17,19 @@ function Register-ProjectItem {
     )
 
     process {
-        Assert-Auth
-
-        $query = "{ `"query`":`"
-            mutation addItem {
-                addF:addProjectV2ItemById(input:{
-                    projectId:\`"$ProjectID\`"
-                    contentId:\`"$ContentID\`"
-                }) {
-                    item {
-                        id
-                    }
+        $query = "
+        mutation addItem {
+            addF:addProjectV2ItemById(input:{
+                projectId:\`"$ProjectID\`"
+                contentId:\`"$ContentID\`"
+            }) {
+                item {
+                    id
                 }
-            }`"
+            }
         }"
 
-        $params = @{
-            'Uri' = 'https://api.github.com/graphql'
-            'Method' = 'POST'
-            'Authentication' = 'OAuth'
-            'Token' = $global:GH_TOKEN
-            'Body' = $($query -replace "`r`n","")
-            'ContentType' = 'application/json'
-        }
-
-        Write-Host '[ProjectAccess] Sending request...'
-        $res = Invoke-RestMethod @params -StatusCodeVariable 'statusCode'
-        Write-Host "[ProjectAccess] Request reponse status code: $statusCode"
-        if ($null -ne $res.errors) {
-            Write-Error "ERROR"
-            foreach ($err in $res.errors) {
-                Write-Error "$($err.type) --- $($err.message)"
-            }
-            return $null
-        }
-        
-        Write-Output $res
+        Send-GraphQLQuery -Query $query | Write-Output
     }
 }
 
@@ -74,7 +51,7 @@ function Edit-ProjectItemField {
     )
 
     process {
-        Assert-Auth
+
     }
 }
 
@@ -95,6 +72,42 @@ function Request-GithubUserData {
         $userData = Invoke-RestMethod @splat
     
         $userData
+    }
+}
+
+function Send-GraphQLQuery {
+    [CmdletBinding()]
+    [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    param(
+        [Parameter(Mandatory)]
+        [string]
+        $Query
+    )
+
+    process {
+        Assert-Auth
+
+        $params = @{
+            'Uri' = 'https://api.github.com/graphql'
+            'Method' = 'POST'
+            'Authentication' = 'OAuth'
+            'Token' = $global:GH_TOKEN
+            'Body' = "{ `"query`":`" " + $($Query -replace "`r`n","") + "`"}"
+            'ContentType' = 'application/json'
+        }
+
+        Write-Host '[ProjectAccess] Sending request...'
+        $res = Invoke-RestMethod @params -StatusCodeVariable 'statusCode'
+        Write-Host "[ProjectAccess] Request reponse status code: $statusCode"
+        if ($null -ne $res.errors) {
+            Write-Error "ERROR"
+            foreach ($err in $res.errors) {
+                Write-Error "$($err.type) --- $($err.message)"
+            }
+            return $null
+        }
+
+        Write-Output $res
     }
 }
 

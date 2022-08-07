@@ -12,6 +12,7 @@
         'Edit-ProjectItemField'
         'Register-ProjectItem'
         'Request-GithubUserData'
+        'Send-GraphQLQuery'
         'Set-GithubAuth'
     );
     CmdletsToExport = @();
