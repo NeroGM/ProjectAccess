@@ -35,7 +35,7 @@ function Request-GithubUserData {
 
 function Register-ProjectItem {
     [CmdletBinding()]
-    [OutputType([System.Void])]
+    [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     param(
         [Parameter(Mandatory)]
         [string]
@@ -46,6 +46,39 @@ function Register-ProjectItem {
     )
 
     process {
+        if ($null -eq $global:GH_TOKEN) {
+            throw 'Not authenticated. Use: ''Set-GithubAuth''.';
+        }
+
+        $query = "{ `"query`":`"
+            mutation addItem {
+                addF:addProjectV2ItemById(input:{
+                    projectId:\`"$ProjectID\`"
+                    contentId:\`"$ContentID\`"
+                }) {
+                    item {
+                        id
+                    }
+                }
+            }`"
+        }"
+
+        $params = @{
+            'Uri' = 'https://api.github.com/graphql'
+            'Method' = 'POST'
+            'Authentication' = 'OAuth'
+            'Token' = $global:GH_TOKEN
+            'Headers' = @{
+                'Accept' = 'application/vnd.github+json'
+            }
+            'Body' = $($query -replace "`r`n","")
+            'ContentType' = 'application/json'
+        }
+
+        Write-Host '[ProjectAccess] Sending request...'
+        $res = Invoke-RestMethod @params -StatusCodeVariable 'statusCode'
+        Write-Host "[ProjectAccess] Status code received: $statusCode"
         
+        Write-Output $res
     }
 }
