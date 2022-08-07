@@ -52,6 +52,28 @@ function Register-ProjectItem {
     }
 }
 
+function Edit-ProjectItemField {
+    [CmdletBinding()]
+    [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    param(
+        [Parameter(Mandatory)]
+        [string]
+        $ProjectID,
+        [Parameter(Mandatory)]
+        [string]
+        $ItemID,
+        [Parameter(Mandatory)]
+        [string]
+        $FieldID,
+        [Parameter(Mandatory)]
+        $value
+    )
+
+    process {
+        
+    }
+}
+
 function Request-GithubUserData {
     [CmdletBinding()]
     [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]

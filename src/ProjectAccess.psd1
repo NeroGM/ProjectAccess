@@ -9,6 +9,7 @@
 
     FunctionsToExport = @(
         'ConvertTo-Filter'
+        'Edit-ProjectItemField'
         'Register-ProjectItem'
         'Request-GithubUserData'
         'Set-GithubAuth'
