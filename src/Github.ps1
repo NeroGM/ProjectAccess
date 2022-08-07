@@ -18,7 +18,7 @@ function Register-ProjectItem {
 
     process {
         $query = "
-        mutation addItem {
+        mutation AddItem {
             addF:addProjectV2ItemById(input:{
                 projectId:\`"$ProjectID\`"
                 contentId:\`"$ContentID\`"
