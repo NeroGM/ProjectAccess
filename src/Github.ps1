@@ -4,35 +4,6 @@ function Assert-Auth {
     }
 }
 
-function Register-ProjectItem {
-    [CmdletBinding()]
-    [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
-    param(
-        [Parameter(Mandatory)]
-        [string]
-        $ProjectID,
-        [Parameter(Mandatory)]
-        [string]
-        $ContentID
-    )
-
-    process {
-        $query = "
-        mutation AddItem {
-            addF:addProjectV2ItemById(input:{
-                projectId:\`"$ProjectID\`"
-                contentId:\`"$ContentID\`"
-            }) {
-                item {
-                    id
-                }
-            }
-        }"
-
-        Send-GraphQLQuery -Query $query | Write-Output
-    }
-}
-
 function Edit-ProjectItemField {
     [CmdletBinding(DefaultParameterSetName='Text')]
     [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
@@ -79,6 +50,35 @@ function Edit-ProjectItemField {
             }) {
                 clientMutationId
                 projectV2Item {
+                    id
+                }
+            }
+        }"
+
+        Send-GraphQLQuery -Query $query | Write-Output
+    }
+}
+
+function Register-ProjectItem {
+    [CmdletBinding()]
+    [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    param(
+        [Parameter(Mandatory)]
+        [string]
+        $ProjectID,
+        [Parameter(Mandatory)]
+        [string]
+        $ContentID
+    )
+
+    process {
+        $query = "
+        mutation AddItem {
+            addF:addProjectV2ItemById(input:{
+                projectId:\`"$ProjectID\`"
+                contentId:\`"$ContentID\`"
+            }) {
+                item {
                     id
                 }
             }
