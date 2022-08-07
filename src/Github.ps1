@@ -32,3 +32,20 @@ function Request-GithubUserData {
         $userData
     }
 }
+
+function Register-ProjectItem {
+    [CmdletBinding()]
+    [OutputType([System.Void])]
+    param(
+        [Parameter(Mandatory)]
+        [string]
+        $ProjectID,
+        [Parameter(Mandatory)]
+        [string]
+        $ContentID
+    )
+
+    process {
+        
+    }
+}
