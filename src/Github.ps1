@@ -108,6 +108,90 @@ function Request-GithubUserData {
     }
 }
 
+function Request-ProjectFields {
+    [CmdletBinding(DefaultParameterSetName='First')]
+    [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    param(
+        [Parameter(Mandatory)]
+        [int] $ProjectNumber,
+
+        [Parameter(Mandatory, ParameterSetName='First')]
+        [Parameter(Mandatory, ParameterSetName='FirstAfter')]
+        [Parameter(Mandatory, ParameterSetName='FirstBefore')]
+        [int] $First,
+        [Parameter(Mandatory, ParameterSetName='Last')]
+        [Parameter(Mandatory, ParameterSetName='LastAfter')]
+        [Parameter(Mandatory, ParameterSetName='LastBefore')]
+        [int] $Last,
+        [Parameter(Mandatory, ParameterSetName='FirstAfter')]
+        [Parameter(Mandatory, ParameterSetName='LastAfter')]
+        [string] $After,
+        [Parameter(Mandatory, ParameterSetName='FirstBefore')]
+        [Parameter(Mandatory, ParameterSetName='LastBefore')]
+        [string] $Before
+    )
+
+    process {
+        $fieldsParams = switch ($PSCmdlet.ParameterSetName) {
+            'First' { "first:$First"; break; }
+            'FirstAfter' { "first:$First, after:\`"$After\`""; break; }
+            'FirstBefore' { "first:$First, before:\`"$Before\`""; break; }
+            'Last' { "last:$Last"; break; }
+            'LastAfter' { "last:$Last, after:\`"$After\`""; break; }
+            'LastBefore' { "last:$Last, before:\`"$Before\`""; break; }
+            default { throw "Unhandled parameter set: '$($PSCmdlet.ParameterSetName)'." }
+        }
+
+        $query = "
+        query {
+            viewer {
+                projectV2(number:$ProjectNumber) {
+                    fields($fieldsParams) {
+                        edges {
+                            cursor
+                            node {
+                                ... on ProjectV2FieldCommon {
+                                    id
+                                    databaseId
+                                    dataType
+                                    name
+                                    createdAt
+                                    updatedAt
+                                }
+                                ... on ProjectV2IterationField {
+                                    configuration {
+                                        duration
+                                        iterations {
+                                            id
+                                            title
+                                            startDate
+                                            duration
+                                        }
+                                        completedIterations {
+                                            id
+                                            title
+                                            startDate
+                                            duration
+                                        }
+                                    }
+                                }
+                                ... on ProjectV2SingleSelectField {
+                                    options {
+                                        id
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        "
+        Send-GraphQLQuery -Query $query | Write-Output
+    }
+}
+
 function Send-GraphQLQuery {
     [CmdletBinding()]
     [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
