@@ -34,7 +34,7 @@ function Register-ProjectItem {
 }
 
 function Edit-ProjectItemField {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='Text')]
     [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     param(
         [Parameter(Mandatory)]
@@ -46,12 +46,45 @@ function Edit-ProjectItemField {
         [Parameter(Mandatory)]
         [string]
         $FieldID,
-        [Parameter(Mandatory)]
-        $value
+        
+        [Parameter(Mandatory, ParameterSetName='Date')]
+        [string] $DateValue,
+        [Parameter(Mandatory, ParameterSetName='IterationID')]
+        [string] $IterationIDValue,
+        [Parameter(Mandatory, ParameterSetName='Number')]
+        [float] $NumberValue,
+        [Parameter(Mandatory, ParameterSetName='SingleSelectionOptionID')]
+        [string] $SingleSelectionIDValue,
+        [Parameter(Mandatory, ParameterSetName='Text')]
+        [string] $TextValue
     )
 
     process {
+        $val = switch ($PSCmdlet.ParameterSetName) {
+            'Date' { "date:\`"$DateValue\`""; break; }
+            'IterationID' { "iterationId:\`"$IterationIDValue\`""; break; }
+            'Number' { "number: $NumberValue"; break; }
+            'SingleSelectionOptionID' { "singleSelectOptionId:\`"$SingleSelectionIDValue\`""; break; }
+            'Text' { "text:\`"$TextValue\`""; break; }
+            default { throw "Unknown value type: '$($switch.Current)'." }
+        }
 
+        $query = "
+        mutation UpdateItem {
+            addF:updateProjectV2ItemFieldValue(input:{
+                projectId:\`"$ProjectID\`"
+                itemId:\`"$ItemID\`"
+                fieldId:\`"$FieldID\`"
+                value:{ $val }
+            }) {
+                clientMutationId
+                projectV2Item {
+                    id
+                }
+            }
+        }"
+
+        Send-GraphQLQuery -Query $query | Write-Output
     }
 }
 
