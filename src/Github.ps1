@@ -1,3 +1,9 @@
+function Assert-Auth {
+    if ($null -eq $global:GH_TOKEN) {
+        throw 'Not authenticated. Use: ''Set-GithubAuth''.';
+    }
+}
+
 function Register-ProjectItem {
     [CmdletBinding()]
     [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
@@ -11,9 +17,7 @@ function Register-ProjectItem {
     )
 
     process {
-        if ($null -eq $global:GH_TOKEN) {
-            throw 'Not authenticated. Use: ''Set-GithubAuth''.';
-        }
+        Assert-Auth
 
         $query = "{ `"query`":`"
             mutation addItem {
@@ -70,7 +74,7 @@ function Edit-ProjectItemField {
     )
 
     process {
-        
+        Assert-Auth
     }
 }
 
