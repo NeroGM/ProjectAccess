@@ -68,9 +68,6 @@ function Register-ProjectItem {
             'Method' = 'POST'
             'Authentication' = 'OAuth'
             'Token' = $global:GH_TOKEN
-            'Headers' = @{
-                'Accept' = 'application/vnd.github+json'
-            }
             'Body' = $($query -replace "`r`n","")
             'ContentType' = 'application/json'
         }
