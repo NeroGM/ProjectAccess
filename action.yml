@@ -12,6 +12,8 @@ runs:
   steps:
     - name: Setting up environment
       run: |
+        Install-Package Microsoft.PowerShell.Commands.Utility -Source https://www.nuget.org/api/v2 -Force -Scope CurrentUser -SkipDependencies
+
         if ($${{ runner.os == 'Linux' }}) {
           $path = '/home/runner/.local/share/powershell/Modules/'
         } elseif ($${{ runner.os == 'macOS' }}) {
