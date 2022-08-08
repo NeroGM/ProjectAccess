@@ -12,19 +12,19 @@ runs:
   steps:
     - name: Setting up environment
       run: |
-        New-Item -ItemType Directory -Path "$home\PowerShell\Modules\ProjectAccess\"
-        Copy-Item '${{ github.action_path }}\src\*' -Destination "$home\PowerShell\Modules\ProjectAccess\"
+        if ($${{ runner.os == 'Linux' }}) {
+          $path = '/home/runner/.local/share/powershell/Modules/'
+        } elseif ($${{ runner.os == 'macOS' }}) {
+          $path = '/Users/runner/.local/share/powershell/Modules/'
+        } elseif ($${{ runner.os == 'Windows' }}) {
+          $path = 'C:\Users\runneradmin\Documents\PowerShell\Modules\'
+        } else {
+          throw 'Unknown OS: ${{runner.os}}.'
+        }
 
-        $sep1 = [System.IO.Path]::PathSeparator
-        $sep2 = [System.IO.Path]::DirectorySeparatorChar
-        $path = "{0}$home{1}PowerShell{1}Modules{1}ProjectAccess{1}" -f @($sep1,$sep2)
-        [System.Environment]::SetEnvironmentVariable('PSModulePath',($Env:PSModulePath+$path))
-        Write-Host $Env:PSModulePath
-
-        $var = $($Env:PSModulePath+$path)
-        echo "var: $var"
-        echo "PSModulePath=$var" >> $GITHUB_ENV
+        New-Item -ItemType Directory -Path "$path/ProjectAccess/"
+        Copy-Item '${{ github.action_path }}\src\*' -Destination "$path/ProjectAccess/"
       shell: pwsh
 
-    - run: Write-Host ${{ toJSON(env) }}
-      shell: pwsh
+    # - run: echo ${{ toJSON(env) }}
+    #   shell: bash
