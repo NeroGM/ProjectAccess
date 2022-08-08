@@ -1,5 +1,5 @@
 function Assert-Auth {
-    if ($null -eq $global:GH_TOKEN) {
+    if ($null -eq $GH_TOKEN) {
         throw 'Not authenticated. Use: ''Set-GithubAuth''.';
     }
 }
@@ -97,7 +97,7 @@ function Request-GithubUserData {
         $splat = @{
             'Uri' = 'https://api.github.com/user'
             'Authentication' = 'OAuth'
-            'Token' = $global:GH_TOKEN
+            'Token' = $GH_TOKEN
             'Headers' = @{
                 'Accept' = 'application/vnd.github+json'
             }
@@ -208,7 +208,7 @@ function Send-GraphQLQuery {
             'Uri' = 'https://api.github.com/graphql'
             'Method' = 'POST'
             'Authentication' = 'OAuth'
-            'Token' = $global:GH_TOKEN
+            'Token' = $GH_TOKEN
             'Body' = "{ `"query`":`" " + $($Query -replace "`r`n","") + "`"}"
             'ContentType' = 'application/json'
         }
@@ -239,6 +239,6 @@ function Set-GithubAuth {
 
     process {
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute('UseDeclaredVarsMoreThanAssignments','',Scope='Global')]
-        $global:GH_TOKEN = ConvertTo-SecureString $Token -AsPlainText -Force
+        $script:GH_TOKEN = ConvertTo-SecureString $Token -AsPlainText -Force
     }
 }
