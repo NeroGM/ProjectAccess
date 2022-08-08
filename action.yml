@@ -1,37 +1,17 @@
 name: 'Project Access'
 author: 'NeroGM'
-description: 'Read/Edit Github Projects (V2).'
+description: 'Read/Edit Github Projects.'
 
 inputs:
   github-token:
     description: A Personal Access Token with at least "repo" and "project" scope.
     required: true
-  project-url:
-    description: 'The URL of the Github Project.'
-  project-number:
-    description: 'The Github Project number.'
-  get-items:
-    description: 'Selectors for the items you want to fetch.'
-  read-fields:
-    description: 'Selectors for the fields you want to read.'
-  read-items:
-    description: 'Selectors for the items you want to read the fields of.'
-  add-items:
-    description: 'Selectors for the items you want to add to the project.'
-  edit-fields:
-    description: 'Selectors for the fields you want to edit.'
-
-outputs:
-  some-output:
-    description: "Output testing"
-    value: ${{ steps.outputGen.outputs.something }}
 
 runs:
   using: "composite"
   steps:
-    - name: Processing request...
-      run: >
-        ${{ github.action_path }}/src/main.ps1
-        -token ${{ inputs.github-token }}
-        -projectNumber ${{ inputs.project-number }}
+    - name: Setting up environment
+      run: |
+        Import-Module ${{ github.action_path }}/src/ProjectAccess.psm1
+        Set-GithubAuth -Token ${{ inputs.github-token }}
       shell: pwsh

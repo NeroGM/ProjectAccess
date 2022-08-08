@@ -3,7 +3,7 @@
     PowerShellVersion = '7.0'
 
     RootModule = 'ProjectAccess.psm1';
-    ModuleVersion = '0.1';
+    ModuleVersion = '0.1.0';
     Author = 'NeroGM';
     Copyright = 'No rights reserved.';
 
