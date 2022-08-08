@@ -215,6 +215,7 @@ function Send-GraphQLQuery {
             'ContentType' = 'application/json'
         }
 
+        Write-Host "Query: $Query"
         Write-Host '[ProjectAccess] Sending request...'
         $res = Invoke-RestMethod @params -StatusCodeVariable 'statusCode'
         Write-Host "[ProjectAccess] Request reponse status code: $statusCode"
