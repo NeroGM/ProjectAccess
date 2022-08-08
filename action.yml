@@ -14,5 +14,9 @@ runs:
       run: |
         New-Item -ItemType Directory -Path "$home\PowerShell\Modules\ProjectAccess\"
         Copy-Item '${{ github.action_path }}\src\*' -Destination "$home\PowerShell\Modules\ProjectAccess\"
-        $Env:PSModulePath + ";$home\PowerShell\Modules\ProjectAccess\"
+
+        $sep1 = [System.IO.Path]::PathSeparator
+        $sep2 = [System.IO.Path]::DirectorySeparatorChar
+        $Env:PSModulePath += "{0}$home{1}PowerShell{1}Modules{1}ProjectAccess{1}" -f @($sep1,$sep2)
+        Write-Host $Env:PSModulePath
       shell: pwsh
