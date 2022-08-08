@@ -146,6 +146,8 @@ function Request-ProjectFields {
         query {
             viewer {
                 projectV2(number:$ProjectNumber) {
+                    id
+                    title
                     fields($fieldsParams) {
                         edges {
                             cursor
