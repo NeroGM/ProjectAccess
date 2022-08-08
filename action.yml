@@ -20,4 +20,11 @@ runs:
         $path = "{0}$home{1}PowerShell{1}Modules{1}ProjectAccess{1}" -f @($sep1,$sep2)
         [System.Environment]::SetEnvironmentVariable('PSModulePath',($Env:PSModulePath+$path))
         Write-Host $Env:PSModulePath
+
+        $var = $($Env:PSModulePath+$path)
+        echo "var: $var"
+        echo "PSModulePath=$var" >> $GITHUB_ENV
+      shell: pwsh
+
+    - run: Write-Host ${{ toJSON(env) }}
       shell: pwsh
