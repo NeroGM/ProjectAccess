@@ -211,7 +211,7 @@ function Send-GraphQLQuery {
             'Method' = 'POST'
             'Authentication' = 'OAuth'
             'Token' = $GH_TOKEN
-            'Body' = "{ `"query`":`" " + $($Query -replace "`r`n","") + "`"}"
+            'Body' = "{ `"query`":`" " + $($Query -replace '(\r\n?)|(\n)',"") + "`"}"
             'ContentType' = 'application/json'
         }
 
