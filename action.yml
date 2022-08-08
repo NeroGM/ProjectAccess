@@ -12,6 +12,7 @@ runs:
   steps:
     - name: Setting up environment
       run: |
-        New-Item -ItemType Directory -Path "$home\Documents\PowerShell\Modules\ProjectAccess\"
-        Copy-Item '${{ github.action_path }}\src\*' -Destination "$home\Documents\PowerShell\Modules\ProjectAccess\"
+        New-Item -ItemType Directory -Path "$home\PowerShell\Modules\ProjectAccess\"
+        Copy-Item '${{ github.action_path }}\src\*' -Destination "$home\PowerShell\Modules\ProjectAccess\"
+        $Env:PSModulePath + ";$home\PowerShell\Modules\ProjectAccess\"
       shell: pwsh
