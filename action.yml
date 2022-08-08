@@ -17,6 +17,7 @@ runs:
 
         $sep1 = [System.IO.Path]::PathSeparator
         $sep2 = [System.IO.Path]::DirectorySeparatorChar
-        $Env:PSModulePath += "{0}$home{1}PowerShell{1}Modules{1}ProjectAccess{1}" -f @($sep1,$sep2)
+        $path = "{0}$home{1}PowerShell{1}Modules{1}ProjectAccess{1}" -f @($sep1,$sep2)
+        [System.Environment]::SetEnvironmentVariable('PSModulePath',($Env:PSModulePath+$path))
         Write-Host $Env:PSModulePath
       shell: pwsh
