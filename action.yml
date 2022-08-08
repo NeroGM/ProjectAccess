@@ -5,7 +5,6 @@ description: 'Read/Edit Github Projects.'
 inputs:
   github-token:
     description: A Personal Access Token with at least "repo" and "project" scope.
-    required: true
 
 runs:
   using: "composite"
@@ -26,6 +25,10 @@ runs:
 
         New-Item -ItemType Directory -Path "$path/ProjectAccess/"
         Copy-Item '${{ github.action_path }}\src\*' -Destination "$path/ProjectAccess/"
+
+        $token = '${{inputs.github-token}}';
+        if ('' -eq $token) { $token = '${{env.PA_GH_TOKEN}}'}
+        if ('' -ne $token) { "PA_GH_TOKEN=$token" >> $Env:GITHUB_ENV }
       shell: pwsh
 
     # - run: echo ${{ toJSON(env) }}

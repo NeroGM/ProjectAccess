@@ -1,6 +1,11 @@
 function Assert-Auth {
     if ($null -eq $GH_TOKEN) {
-        throw 'Not authenticated. Use: ''Set-GithubAuth''.';
+        if ($Env:PA_GH_TOKEN) {
+            Write-Host 'Getting authentication token from $Env:PA_GH_TOKEN.'
+            $script:GH_TOKEN = ConvertTo-SecureString $Env:PA_GH_TOKEN -AsPlainText -Force
+        } else {
+            throw 'No authentication token found. Use: ''Set-GithubAuth'' or set the environment var $PA_GH_TOKEN.'
+        }
     }
 }
 
@@ -244,5 +249,6 @@ function Set-GithubAuth {
     process {
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute('UseDeclaredVarsMoreThanAssignments','',Scope='Global')]
         $script:GH_TOKEN = ConvertTo-SecureString $Token -AsPlainText -Force
+        Write-Host 'Authentication token set.'
     }
 }
