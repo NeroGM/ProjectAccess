@@ -103,6 +103,58 @@ function Find-ProjectField {
     }
 }
 
+function Get-ProjectFieldValue {
+    [CmdletBinding()]
+    [OutputType([PSObject])]
+    param(
+        [Parameter(Mandatory)]
+        [PSObject] $Field,
+        $Criteria
+    )
+
+    process {
+        switch -regex ($Field.dataType) {
+            '^(TITLE|ASSIGNEES|LABELS|LINKED_PULL_REQUESTS|TASKS|REVIEWERS|REPOSITORY|MILESTONE|NUMBER|TEXT|DATE)$' {
+                Write-Output $Field
+                return
+            }
+            '^SINGLE_SELECT$' {
+                foreach ($option in $Field.options) {
+                    if ($option.name -eq $Criteria) {
+                        Write-Debug 'Found field.'
+                        Write-Output $option
+                        return
+                    }
+                }
+            }
+            '^ITERATION$' {
+                foreach ($iteration in $Field.configuration.iterations) {
+                    $startDate = Get-Date $iteration.startDate
+                    $endDate = (Get-Date $iteration.startDate).AddDays($iteration.duration-1).AddHours(23).
+                        AddMinutes(59).AddSeconds(59).AddMilliseconds(999)
+                    
+                    $format = 'yyyy/MM/dd HH:mm:ss:fff'
+
+                    $s = "`nIteration name: $($iteration.title)`n"
+                    $s += "start: $($startDate.ToString($format))`n"
+                    $s += "end: $($endDate.ToString($format))"
+                    Write-Debug $s
+
+                    $valueDate = Get-Date $Criteria
+                    if ($valueDate -ge $startDate -and $valueDate -le $endDate) {
+                        Write-Debug "Found field."
+                        Write-Output $iteration
+                        return
+                    }
+                }
+            }
+            default { throw "Unsupported field type: $($Field.dataType)" }
+        }
+
+        Write-Debug 'No field value found.'
+    }
+}
+
 function Register-ProjectItem {
     [CmdletBinding()]
     [OutputType([PSObject])]

@@ -11,6 +11,7 @@
         'ConvertTo-Filter'
         'Edit-ProjectItemField'
         'Find-ProjectField'
+        'Get-ProjectFieldValue'
         'Register-ProjectItem'
         'Request-GithubUserData'
         'Request-ProjectData'
