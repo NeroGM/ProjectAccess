@@ -130,9 +130,11 @@ function Request-ProjectFields {
         [int] $Last,
         [Parameter(Mandatory, ParameterSetName='FirstAfter')]
         [Parameter(Mandatory, ParameterSetName='LastAfter')]
+        [AllowEmptyString()]
         [string] $After,
         [Parameter(Mandatory, ParameterSetName='FirstBefore')]
         [Parameter(Mandatory, ParameterSetName='LastBefore')]
+        [AllowEmptyString()]
         [string] $Before
     )
 
