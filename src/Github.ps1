@@ -201,12 +201,15 @@ function Request-ProjectFields {
 
 function Request-ProjectData {
     [CmdletBinding()]
-    [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject], ParameterSetName="Default")]
+    [OutputType([string], ParameterSetName="ID")]
     param(
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory, Position=0, ParameterSetName='Default')]
+        [Parameter(Mandatory, Position=0, ParameterSetName='ID')]
         [int] $ProjectNumber,
 
-        [switch]$IDOnly
+        [Parameter(Mandatory, ParameterSetName='ID')]
+        [switch] $IDOnly
     )
 
     process {
@@ -239,7 +242,12 @@ function Request-ProjectData {
         }
         "
 
-        Send-GraphQLQuery -Query $query | Write-Output
+        $res = Send-GraphQLQuery -Query $query
+        switch ($PSCmdlet.ParameterSetName) {
+            'Default' { Write-Output $res }
+            'ID' { Write-Output $res.data.viewer.projectV2.id }
+            default { throw "Unhandled Parameter Set: '$($PSCmdlet.ParameterSetName)'." }
+        }
     }
 }
 
