@@ -10,6 +10,7 @@
     FunctionsToExport = @(
         'ConvertTo-Filter'
         'Edit-ProjectItemField'
+        'Find-ProjectField'
         'Register-ProjectItem'
         'Request-GithubUserData'
         'Request-ProjectData'

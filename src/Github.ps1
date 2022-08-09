@@ -64,6 +64,45 @@ function Edit-ProjectItemField {
     }
 }
 
+function Find-ProjectField {
+    [CmdletBinding()]
+    [OutputType([PSObject])]
+    param(
+        [Parameter(Mandatory)]
+        [int] $ProjectNumber,
+
+        [Parameter(Mandatory)]
+        [string] $FieldName
+    )
+
+    process {
+        $cursor = ''
+        for ($i=0; $i -lt 10; $i++) {
+            $splat = @{
+                'ProjectNumber' = $ProjectNumber
+                'First' = 100
+                'After' = $cursor
+            }
+            $res = Request-ProjectFields @splat
+
+            $edges = $res.data.viewer.projectV2.fields.edges;
+            if ($edges.Length -eq 0) { break; }
+            foreach ($edge in $edges) {
+                Write-Debug (ConvertTo-Json $edge.node)
+                if ($edge.node.name -eq $FieldName) {
+                    Write-Host 'Found field.'
+                    Write-Output $edge.node
+                    return;
+                }
+            }
+            $cursor = $edges[$edges.Length-1].cursor
+        }
+
+        Write-Host 'Field not found.'
+        Write-Output $null
+    }
+}
+
 function Register-ProjectItem {
     [CmdletBinding()]
     [OutputType([PSObject])]
