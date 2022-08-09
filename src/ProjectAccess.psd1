@@ -12,6 +12,7 @@
         'Edit-ProjectItemField'
         'Register-ProjectItem'
         'Request-GithubUserData'
+        'Request-ProjectData'
         'Request-ProjectFields'
         'Send-GraphQLQuery'
         'Set-GithubAuth'
