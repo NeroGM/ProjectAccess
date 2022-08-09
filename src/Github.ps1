@@ -11,7 +11,7 @@ function Assert-Auth {
 
 function Edit-ProjectItemField {
     [CmdletBinding(DefaultParameterSetName='Text')]
-    [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    [OutputType([PSObject])]
     param(
         [Parameter(Mandatory)]
         [string]
@@ -66,7 +66,7 @@ function Edit-ProjectItemField {
 
 function Register-ProjectItem {
     [CmdletBinding()]
-    [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    [OutputType([PSObject])]
     param(
         [Parameter(Mandatory)]
         [string]
@@ -95,7 +95,7 @@ function Register-ProjectItem {
 
 function Request-GithubUserData {
     [CmdletBinding()]
-    [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    [OutputType([PSObject])]
     param()
 
     process {
@@ -115,7 +115,7 @@ function Request-GithubUserData {
 
 function Request-ProjectFields {
     [CmdletBinding(DefaultParameterSetName='First')]
-    [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    [OutputType([PSObject])]
     param(
         [Parameter(Mandatory)]
         [int] $ProjectNumber,
@@ -201,7 +201,7 @@ function Request-ProjectFields {
 
 function Request-ProjectData {
     [CmdletBinding()]
-    [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject], ParameterSetName="Default")]
+    [OutputType([PSObject], ParameterSetName="Default")]
     [OutputType([string], ParameterSetName="ID")]
     param(
         [Parameter(Mandatory, Position=0, ParameterSetName='Default')]
@@ -253,7 +253,7 @@ function Request-ProjectData {
 
 function Send-GraphQLQuery {
     [CmdletBinding()]
-    [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    [OutputType([PSObject])]
     param(
         [Parameter(Mandatory)]
         [string]
