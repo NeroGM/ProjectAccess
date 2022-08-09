@@ -155,6 +155,112 @@ function Get-ProjectFieldValue {
     }
 }
 
+function Request-PullRequestCommit {
+    [CmdletBinding(DefaultParameterSetName='First')]
+    [OutputType([PSObject])]
+    param(
+        [Parameter(Mandatory)]
+        [string] $RepositoryName,
+        [Parameter(Mandatory)]
+        [int] $PullRequestNumber,
+
+        [Parameter(Mandatory, ParameterSetName='First')]
+        [Parameter(Mandatory, ParameterSetName='FirstAfter')]
+        [Parameter(Mandatory, ParameterSetName='FirstBefore')]
+        [int] $First,
+        [Parameter(Mandatory, ParameterSetName='Last')]
+        [Parameter(Mandatory, ParameterSetName='LastAfter')]
+        [Parameter(Mandatory, ParameterSetName='LastBefore')]
+        [int] $Last,
+        [Parameter(Mandatory, ParameterSetName='FirstAfter')]
+        [Parameter(Mandatory, ParameterSetName='LastAfter')]
+        [AllowEmptyString()]
+        [string] $After,
+        [Parameter(Mandatory, ParameterSetName='FirstBefore')]
+        [Parameter(Mandatory, ParameterSetName='LastBefore')]
+        [AllowEmptyString()]
+        [string] $Before
+    )
+
+    process {
+        $fieldsParams = switch ($PSCmdlet.ParameterSetName) {
+            'First' { "first:$First"; break; }
+            'FirstAfter' { "first:$First, after:\`"$After\`""; break; }
+            'FirstBefore' { "first:$First, before:\`"$Before\`""; break; }
+            'Last' { "last:$Last"; break; }
+            'LastAfter' { "last:$Last, after:\`"$After\`""; break; }
+            'LastBefore' { "last:$Last, before:\`"$Before\`""; break; }
+            default { throw "Unhandled parameter set: '$($PSCmdlet.ParameterSetName)'." }
+        }
+
+        $query = "
+        query {
+            viewer {
+                repository(name:\`"$RepositoryName\`") {
+                    pullRequest(number:$PullRequestNumber) {
+                        commits($fieldsParams) {
+                            totalCount
+                            pageInfo {
+                                startCursor
+                                endCursor
+                                hasPreviousPage
+                                hasNextPage
+                            }
+                            edges {
+                                cursor
+                                node {
+                                    url
+                                    resourcePath
+                                    commit {
+                                        commitUrl
+                                        oid
+                                        abbreviatedOid
+                                        
+                                        authors(first:10) {
+                                            nodes {
+                                                name
+                                                email
+                                                user {
+                                                    name
+                                                    login
+                                                }
+                                                date
+                                            }
+                                            totalCount
+                                        }
+                                        authoredByCommitter
+                                        signature {
+                                            signer {
+                                                name
+                                                login
+                                            }
+                                            email
+                                            isValid
+                                            state
+                                            signature
+                                            wasSignedByGitHub
+                                        }
+
+                                        authoredDate
+                                        committedDate
+                                        pushedDate
+
+                                        message
+                                        messageBody
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        "
+
+        Send-GraphQLQuery -Query $query | Write-Output
+    }
+}
+
 function Register-ProjectItem {
     [CmdletBinding()]
     [OutputType([PSObject])]

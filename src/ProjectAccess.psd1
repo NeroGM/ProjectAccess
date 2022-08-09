@@ -16,6 +16,7 @@
         'Request-GithubUserData'
         'Request-ProjectData'
         'Request-ProjectFields'
+        'Request-PullRequestCommit'
         'Send-GraphQLQuery'
         'Set-GithubAuth'
     );
