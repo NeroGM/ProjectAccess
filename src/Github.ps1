@@ -199,6 +199,50 @@ function Request-ProjectFields {
     }
 }
 
+function Request-ProjectData {
+    [CmdletBinding()]
+    [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    param(
+        [Parameter(Mandatory)]
+        [int] $ProjectNumber,
+
+        [switch]$IDOnly
+    )
+
+    process {
+        $query = "
+        query {
+            viewer {
+                projectV2(number:$ProjectNumber) {
+                    id
+                    $(if ($false -eq $IDOnly) {'
+                    databaseId
+                    resourcePath
+                    url
+                    number
+                    title
+                    public
+                    creator {
+                        login
+                    }
+
+                    updatedAt
+                    viewerCanUpdate
+                    createdAt
+                    closed
+                    closedAt
+
+                    shortDescription
+                    readme'})
+                }
+            }
+        }
+        "
+
+        Send-GraphQLQuery -Query $query | Write-Output
+    }
+}
+
 function Send-GraphQLQuery {
     [CmdletBinding()]
     [OutputType([Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
