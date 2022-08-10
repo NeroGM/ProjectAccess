@@ -4,7 +4,7 @@ description: 'Read/Edit Github Projects.'
 
 inputs:
   github-token:
-    description: A Personal Access Token with at least "repo" and "project" scope.
+    description: A Personal Access Token.
 
 runs:
   using: "composite"
@@ -23,18 +23,9 @@ runs:
 
         New-Item -ItemType Directory -Path "$path/ProjectAccess/"
         Copy-Item '${{ github.action_path }}\src\*' -Destination "$path/ProjectAccess/"
+        Write-Host "Module installed in $path/ProjectAccess/"
 
         $token = '${{inputs.github-token}}';
         if ('' -eq $token) { $token = '${{env.PA_GH_TOKEN}}'}
         if ('' -ne $token) { "PA_GH_TOKEN=$token" >> $Env:GITHUB_ENV }
-
-        $o = [AppDomain]::CurrentDomain.GetAssemblies() # helps for debug
-        $s = ''
-        foreach ($v in $o) {
-          $s += "$($v.Location)`n"
-        }
-        Write-Host "$s"
       shell: pwsh
-
-    # - run: echo ${{ toJSON(env) }}
-    #   shell: bash
