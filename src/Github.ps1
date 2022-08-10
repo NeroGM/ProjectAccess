@@ -341,6 +341,115 @@ function Request-ProjectFields {
     }
 }
 
+function Request-ProjectItem {
+    [CmdletBinding(DefaultParameterSetName='First')]
+    [OutputType([PSObject])]
+    param(
+        [Parameter(Mandatory)]
+        [int] $ProjectNumber,
+
+        [Parameter(Mandatory, ParameterSetName='First')]
+        [Parameter(Mandatory, ParameterSetName='FirstAfter')]
+        [Parameter(Mandatory, ParameterSetName='FirstBefore')]
+        [int] $First,
+        [Parameter(Mandatory, ParameterSetName='Last')]
+        [Parameter(Mandatory, ParameterSetName='LastAfter')]
+        [Parameter(Mandatory, ParameterSetName='LastBefore')]
+        [int] $Last,
+        [Parameter(Mandatory, ParameterSetName='FirstAfter')]
+        [Parameter(Mandatory, ParameterSetName='LastAfter')]
+        [AllowEmptyString()]
+        [string] $After,
+        [Parameter(Mandatory, ParameterSetName='FirstBefore')]
+        [Parameter(Mandatory, ParameterSetName='LastBefore')]
+        [AllowEmptyString()]
+        [string] $Before
+    )
+
+    process {
+        $fieldsParams = switch ($PSCmdlet.ParameterSetName) {
+            'First' { "first:$First"; break; }
+            'FirstAfter' { "first:$First, after:\`"$After\`""; break; }
+            'FirstBefore' { "first:$First, before:\`"$Before\`""; break; }
+            'Last' { "last:$Last"; break; }
+            'LastAfter' { "last:$Last, after:\`"$After\`""; break; }
+            'LastBefore' { "last:$Last, before:\`"$Before\`""; break; }
+            default { throw "Unhandled parameter set: '$($PSCmdlet.ParameterSetName)'." }
+        }
+
+        $query = "
+        query {
+            viewer {
+                projectV2(number:$ProjectNumber) {
+                    id
+                    title
+                    items($fieldsParams) {
+                        totalCount
+                        pageInfo {
+                            startCursor
+                            endCursor
+                            hasPreviousPage
+                            hasNextPage
+                        }
+                        edges {
+                            cursor
+                            node {
+                                id
+                                databaseId
+                                type
+                                creator {
+                                    login
+                                }
+                                updatedAt
+                                isArchived
+                                content {
+                                    ... on Node {
+                                        id
+                                    }
+                                    ... on DraftIssue {
+                                        creator {
+                                            login
+                                        }
+                                        title
+                                        createdAt
+                                        updatedAt
+                                    }
+                                    ... on Issue {
+                                        url
+                                        author {
+                                            login
+                                        }
+                                        title
+                                        publishedAt
+                                        createdAt
+                                        updatedAt
+                                        closedAt
+                                        closed
+                                    }
+                                    ... on PullRequest {
+                                        url
+                                        author {
+                                            login
+                                        }
+                                        title
+                                        number
+                                        publishedAt
+                                        createdAt
+                                        updatedAt
+                                        mergedAt
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        "
+        Send-GraphQLQuery -Query $query | Write-Output
+    }
+}
+
 function Request-PullRequestCommit {
     [CmdletBinding(DefaultParameterSetName='First')]
     [OutputType([PSObject])]
