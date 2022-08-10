@@ -128,7 +128,8 @@ function Get-ProjectFieldValue {
                 }
             }
             '^ITERATION$' {
-                foreach ($iteration in $Field.configuration.iterations) {
+                $iterations = $Field.configuration.completedIterations + $Field.configuration.iterations
+                foreach ($iteration in $iterations) {
                     $startDate = Get-Date $iteration.startDate
                     $endDate = (Get-Date $iteration.startDate).AddDays($iteration.duration-1).AddHours(23).
                         AddMinutes(59).AddSeconds(59).AddMilliseconds(999)
