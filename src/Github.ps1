@@ -21,14 +21,18 @@ function Edit-ProjectItemField {
         [string] $FieldID,
         
         [Parameter(Mandatory, ParameterSetName='Date')]
+        [AllowEmptyString()]
         [string] $DateValue,
         [Parameter(Mandatory, ParameterSetName='IterationID')]
+        [AllowEmptyString()]
         [string] $IterationIDValue,
         [Parameter(Mandatory, ParameterSetName='Number')]
         [float] $NumberValue,
         [Parameter(Mandatory, ParameterSetName='SingleSelectionOptionID')]
+        [AllowEmptyString()]
         [string] $SingleSelectionIDValue,
         [Parameter(Mandatory, ParameterSetName='Text')]
+        [AllowEmptyString()]
         [string] $TextValue
     )
 
