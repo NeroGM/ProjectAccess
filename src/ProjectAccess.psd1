@@ -3,13 +3,23 @@
     PowerShellVersion = '7.0'
 
     RootModule = 'ProjectAccess.psm1';
-    ModuleVersion = '0.1';
+    ModuleVersion = '0.1.0';
     Author = 'NeroGM';
     Copyright = 'No rights reserved.';
 
     FunctionsToExport = @(
         'ConvertTo-Filter'
+        'Edit-ProjectItemField'
+        'Find-ProjectField'
+        'Find-ProjectItem'
+        'Get-ProjectFieldValue'
+        'Register-ProjectItem'
         'Request-GithubUserData'
+        'Request-ProjectData'
+        'Request-ProjectFields'
+        'Request-ProjectItem'
+        'Request-PullRequestCommit'
+        'Send-GraphQLQuery'
         'Set-GithubAuth'
     );
     CmdletsToExport = @();

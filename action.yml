@@ -1,37 +1,31 @@
 name: 'Project Access'
 author: 'NeroGM'
-description: 'Read/Edit Github Projects (V2).'
+description: 'Read/Edit Github Projects.'
 
 inputs:
   github-token:
-    description: A Personal Access Token with at least "repo" and "project" scope.
-    required: true
-  project-url:
-    description: 'The URL of the Github Project.'
-  project-number:
-    description: 'The Github Project number.'
-  get-items:
-    description: 'Selectors for the items you want to fetch.'
-  read-fields:
-    description: 'Selectors for the fields you want to read.'
-  read-items:
-    description: 'Selectors for the items you want to read the fields of.'
-  add-items:
-    description: 'Selectors for the items you want to add to the project.'
-  edit-fields:
-    description: 'Selectors for the fields you want to edit.'
-
-outputs:
-  some-output:
-    description: "Output testing"
-    value: ${{ steps.outputGen.outputs.something }}
+    description: A Personal Access Token.
 
 runs:
   using: "composite"
   steps:
-    - name: Processing request...
-      run: >
-        ${{ github.action_path }}/src/main.ps1
-        -token ${{ inputs.github-token }}
-        -projectNumber ${{ inputs.project-number }}
+    - name: Setting up environment
+      run: |
+        if ($${{ runner.os == 'Linux' }}) {
+          $path = '/home/runner/.local/share/powershell/Modules/'
+        } elseif ($${{ runner.os == 'macOS' }}) {
+          $path = '/Users/runner/.local/share/powershell/Modules/'
+        } elseif ($${{ runner.os == 'Windows' }}) {
+          $path = 'C:\Users\runneradmin\Documents\PowerShell\Modules\'
+        } else {
+          throw 'Unknown OS: ${{runner.os}}.'
+        }
+
+        New-Item -ItemType Directory -Path "$path/ProjectAccess/"
+        Copy-Item '${{ github.action_path }}\src\*' -Destination "$path/ProjectAccess/"
+        Write-Host "Module installed in $path/ProjectAccess/"
+
+        $token = '${{inputs.github-token}}';
+        if ('' -eq $token) { $token = '${{env.PA_GH_TOKEN}}'}
+        if ('' -ne $token) { "PA_GH_TOKEN=$token" >> $Env:GITHUB_ENV }
       shell: pwsh
