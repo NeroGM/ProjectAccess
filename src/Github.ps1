@@ -154,6 +154,193 @@ function Get-ProjectFieldValue {
     }
 }
 
+function Register-ProjectItem {
+    [CmdletBinding()]
+    [OutputType([PSObject])]
+    param(
+        [Parameter(Mandatory)]
+        [string] $ProjectID,
+        [Parameter(Mandatory)]
+        [string] $ContentID
+    )
+
+    process {
+        $query = "
+        mutation AddItem {
+            addF:addProjectV2ItemById(input:{
+                projectId:\`"$ProjectID\`"
+                contentId:\`"$ContentID\`"
+            }) {
+                item {
+                    id
+                }
+            }
+        }"
+
+        Send-GraphQLQuery -Query $query | Write-Output
+    }
+}
+
+function Request-GithubUserData {
+    [CmdletBinding()]
+    [OutputType([PSObject])]
+    param()
+
+    process {
+        $splat = @{
+            'Uri' = 'https://api.github.com/user'
+            'Authentication' = 'OAuth'
+            'Token' = $GH_TOKEN
+            'Headers' = @{
+                'Accept' = 'application/vnd.github+json'
+            }
+        }
+        $userData = Invoke-RestMethod @splat
+    
+        Write-Output $userData
+    }
+}
+
+function Request-ProjectData {
+    [CmdletBinding()]
+    [OutputType([PSObject], ParameterSetName="Default")]
+    [OutputType([string], ParameterSetName="ID")]
+    param(
+        [Parameter(Mandatory, Position=0, ParameterSetName='Default')]
+        [Parameter(Mandatory, Position=0, ParameterSetName='ID')]
+        [int] $ProjectNumber,
+
+        [Parameter(Mandatory, ParameterSetName='ID')]
+        [switch] $IDOnly
+    )
+
+    process {
+        $query = "
+        query {
+            viewer {
+                projectV2(number:$ProjectNumber) {
+                    id
+                    $(if ($false -eq $IDOnly) {'
+                    databaseId
+                    resourcePath
+                    url
+                    number
+                    title
+                    public
+                    creator {
+                        login
+                    }
+
+                    updatedAt
+                    viewerCanUpdate
+                    createdAt
+                    closed
+                    closedAt
+
+                    shortDescription
+                    readme'})
+                }
+            }
+        }
+        "
+
+        $res = Send-GraphQLQuery -Query $query
+        switch ($PSCmdlet.ParameterSetName) {
+            'Default' { Write-Output $res }
+            'ID' { Write-Output $res.data.viewer.projectV2.id }
+            default { throw "Unhandled Parameter Set: '$($PSCmdlet.ParameterSetName)'." }
+        }
+    }
+}
+
+function Request-ProjectFields {
+    [CmdletBinding(DefaultParameterSetName='First')]
+    [OutputType([PSObject])]
+    param(
+        [Parameter(Mandatory)]
+        [int] $ProjectNumber,
+
+        [Parameter(Mandatory, ParameterSetName='First')]
+        [Parameter(Mandatory, ParameterSetName='FirstAfter')]
+        [Parameter(Mandatory, ParameterSetName='FirstBefore')]
+        [int] $First,
+        [Parameter(Mandatory, ParameterSetName='Last')]
+        [Parameter(Mandatory, ParameterSetName='LastAfter')]
+        [Parameter(Mandatory, ParameterSetName='LastBefore')]
+        [int] $Last,
+        [Parameter(Mandatory, ParameterSetName='FirstAfter')]
+        [Parameter(Mandatory, ParameterSetName='LastAfter')]
+        [AllowEmptyString()]
+        [string] $After,
+        [Parameter(Mandatory, ParameterSetName='FirstBefore')]
+        [Parameter(Mandatory, ParameterSetName='LastBefore')]
+        [AllowEmptyString()]
+        [string] $Before
+    )
+
+    process {
+        $fieldsParams = switch ($PSCmdlet.ParameterSetName) {
+            'First' { "first:$First"; break; }
+            'FirstAfter' { "first:$First, after:\`"$After\`""; break; }
+            'FirstBefore' { "first:$First, before:\`"$Before\`""; break; }
+            'Last' { "last:$Last"; break; }
+            'LastAfter' { "last:$Last, after:\`"$After\`""; break; }
+            'LastBefore' { "last:$Last, before:\`"$Before\`""; break; }
+            default { throw "Unhandled parameter set: '$($PSCmdlet.ParameterSetName)'." }
+        }
+
+        $query = "
+        query {
+            viewer {
+                projectV2(number:$ProjectNumber) {
+                    id
+                    title
+                    fields($fieldsParams) {
+                        edges {
+                            cursor
+                            node {
+                                ... on ProjectV2FieldCommon {
+                                    id
+                                    databaseId
+                                    dataType
+                                    name
+                                    createdAt
+                                    updatedAt
+                                }
+                                ... on ProjectV2IterationField {
+                                    configuration {
+                                        duration
+                                        iterations {
+                                            id
+                                            title
+                                            startDate
+                                            duration
+                                        }
+                                        completedIterations {
+                                            id
+                                            title
+                                            startDate
+                                            duration
+                                        }
+                                    }
+                                }
+                                ... on ProjectV2SingleSelectField {
+                                    options {
+                                        id
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        "
+        Send-GraphQLQuery -Query $query | Write-Output
+    }
+}
+
 function Request-PullRequestCommit {
     [CmdletBinding(DefaultParameterSetName='First')]
     [OutputType([PSObject])]
@@ -257,193 +444,6 @@ function Request-PullRequestCommit {
         "
 
         Send-GraphQLQuery -Query $query | Write-Output
-    }
-}
-
-function Register-ProjectItem {
-    [CmdletBinding()]
-    [OutputType([PSObject])]
-    param(
-        [Parameter(Mandatory)]
-        [string] $ProjectID,
-        [Parameter(Mandatory)]
-        [string] $ContentID
-    )
-
-    process {
-        $query = "
-        mutation AddItem {
-            addF:addProjectV2ItemById(input:{
-                projectId:\`"$ProjectID\`"
-                contentId:\`"$ContentID\`"
-            }) {
-                item {
-                    id
-                }
-            }
-        }"
-
-        Send-GraphQLQuery -Query $query | Write-Output
-    }
-}
-
-function Request-GithubUserData {
-    [CmdletBinding()]
-    [OutputType([PSObject])]
-    param()
-
-    process {
-        $splat = @{
-            'Uri' = 'https://api.github.com/user'
-            'Authentication' = 'OAuth'
-            'Token' = $GH_TOKEN
-            'Headers' = @{
-                'Accept' = 'application/vnd.github+json'
-            }
-        }
-        $userData = Invoke-RestMethod @splat
-    
-        Write-Output $userData
-    }
-}
-
-function Request-ProjectFields {
-    [CmdletBinding(DefaultParameterSetName='First')]
-    [OutputType([PSObject])]
-    param(
-        [Parameter(Mandatory)]
-        [int] $ProjectNumber,
-
-        [Parameter(Mandatory, ParameterSetName='First')]
-        [Parameter(Mandatory, ParameterSetName='FirstAfter')]
-        [Parameter(Mandatory, ParameterSetName='FirstBefore')]
-        [int] $First,
-        [Parameter(Mandatory, ParameterSetName='Last')]
-        [Parameter(Mandatory, ParameterSetName='LastAfter')]
-        [Parameter(Mandatory, ParameterSetName='LastBefore')]
-        [int] $Last,
-        [Parameter(Mandatory, ParameterSetName='FirstAfter')]
-        [Parameter(Mandatory, ParameterSetName='LastAfter')]
-        [AllowEmptyString()]
-        [string] $After,
-        [Parameter(Mandatory, ParameterSetName='FirstBefore')]
-        [Parameter(Mandatory, ParameterSetName='LastBefore')]
-        [AllowEmptyString()]
-        [string] $Before
-    )
-
-    process {
-        $fieldsParams = switch ($PSCmdlet.ParameterSetName) {
-            'First' { "first:$First"; break; }
-            'FirstAfter' { "first:$First, after:\`"$After\`""; break; }
-            'FirstBefore' { "first:$First, before:\`"$Before\`""; break; }
-            'Last' { "last:$Last"; break; }
-            'LastAfter' { "last:$Last, after:\`"$After\`""; break; }
-            'LastBefore' { "last:$Last, before:\`"$Before\`""; break; }
-            default { throw "Unhandled parameter set: '$($PSCmdlet.ParameterSetName)'." }
-        }
-
-        $query = "
-        query {
-            viewer {
-                projectV2(number:$ProjectNumber) {
-                    id
-                    title
-                    fields($fieldsParams) {
-                        edges {
-                            cursor
-                            node {
-                                ... on ProjectV2FieldCommon {
-                                    id
-                                    databaseId
-                                    dataType
-                                    name
-                                    createdAt
-                                    updatedAt
-                                }
-                                ... on ProjectV2IterationField {
-                                    configuration {
-                                        duration
-                                        iterations {
-                                            id
-                                            title
-                                            startDate
-                                            duration
-                                        }
-                                        completedIterations {
-                                            id
-                                            title
-                                            startDate
-                                            duration
-                                        }
-                                    }
-                                }
-                                ... on ProjectV2SingleSelectField {
-                                    options {
-                                        id
-                                        name
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        "
-        Send-GraphQLQuery -Query $query | Write-Output
-    }
-}
-
-function Request-ProjectData {
-    [CmdletBinding()]
-    [OutputType([PSObject], ParameterSetName="Default")]
-    [OutputType([string], ParameterSetName="ID")]
-    param(
-        [Parameter(Mandatory, Position=0, ParameterSetName='Default')]
-        [Parameter(Mandatory, Position=0, ParameterSetName='ID')]
-        [int] $ProjectNumber,
-
-        [Parameter(Mandatory, ParameterSetName='ID')]
-        [switch] $IDOnly
-    )
-
-    process {
-        $query = "
-        query {
-            viewer {
-                projectV2(number:$ProjectNumber) {
-                    id
-                    $(if ($false -eq $IDOnly) {'
-                    databaseId
-                    resourcePath
-                    url
-                    number
-                    title
-                    public
-                    creator {
-                        login
-                    }
-
-                    updatedAt
-                    viewerCanUpdate
-                    createdAt
-                    closed
-                    closedAt
-
-                    shortDescription
-                    readme'})
-                }
-            }
-        }
-        "
-
-        $res = Send-GraphQLQuery -Query $query
-        switch ($PSCmdlet.ParameterSetName) {
-            'Default' { Write-Output $res }
-            'ID' { Write-Output $res.data.viewer.projectV2.id }
-            default { throw "Unhandled Parameter Set: '$($PSCmdlet.ParameterSetName)'." }
-        }
     }
 }
 
