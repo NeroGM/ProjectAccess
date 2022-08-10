@@ -97,12 +97,12 @@ jobs:
           # Setting date field
           $dateField = Find-ProjectField -ProjectNumber 1 -FieldName 'Date (Closed)'
           $dateValue = Get-Date $Env:contentClosedAt
-          Edit-ProjectItemField -ProjectID $Env:projectId -ItemID ($item.id) -FieldID ($dateField.id) -DateValue $dateValue
+          Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($dateField.id) -DateValue $dateValue
 
           # Setting iteration field
           $itField = Find-ProjectField -ProjectNumber 1 -FieldName '1W (Closed)
           $itFieldValue = Get-ProjectFieldValue -Field $itField -Criteria $dateValue
-          Edit-ProjectItemField -ProjectID $Env:projectId -ItemID ($item.id) -FieldID ($itField.id) -IterationIDValue $itFieldValue
+          Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($itField.id) -IterationIDValue $itFieldValue
         shell: pwsh
 
       - name: Set item fields (Reopened)
@@ -112,9 +112,9 @@ jobs:
 
           # Setting date field
           $dateField = Find-ProjectField -ProjectNumber 1 -FieldName 'Date (Closed)'
-          Edit-ProjectItemField -ProjectID $Env:projectId -ItemID ($item.id) -FieldID ($dateField.id) -DateValue ''
+          Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($dateField.id) -DateValue ''
 
           # Setting iteration field
           $itField = Find-ProjectField -ProjectNumber 1 -FieldName '1W (Closed)
-          Edit-ProjectItemField -ProjectID $Env:projectId -ItemID ($item.id) -FieldID ($itField.id) -IterationIDValue ''
+          Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($itField.id) -IterationIDValue ''
         shell: pwsh
