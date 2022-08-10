@@ -23,7 +23,7 @@ jobs:
           $contentID = ''
 
           switch ($eventName) {
-            'pullRequest' {
+            'pull_request' {
               $contentType = 'pullRequest'
               $contentID = '${{ github.event.pull_request.node_id }}'
               $contentCreatedAt = '${{ github.event.pull_request.created_at }}'
