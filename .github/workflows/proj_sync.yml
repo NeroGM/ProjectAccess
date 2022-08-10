@@ -39,12 +39,12 @@ jobs:
           
           if ($contentID -ne '') {
             $projectID = Request-ProjectData 1 -IDOnly
-            "projectID=$projectID" >> GITHUB_ENV
+            "projectID=$projectID" >> $Env:GITHUB_ENV
 
-            "contentType=$contentType" >> GITHUB_ENV
-            "contentID=$contentID" >> GITHUB_ENV
-            "contentCreatedAt=$contentCreatedAt" >> GITHUB_ENV
-            "contentClosedAt=$contentClosedAt" >> GITHUB_ENV
+            "contentType=$contentType" >> $Env:GITHUB_ENV
+            "contentID=$contentID" >> $Env:GITHUB_ENV
+            "contentCreatedAt=$contentCreatedAt" >> $Env:GITHUB_ENV
+            "contentClosedAt=$contentClosedAt" >> $Env:GITHUB_ENV
             exit 0
           } else {
             exit 1
@@ -65,10 +65,11 @@ jobs:
           $itemID = '${{ steps.addItem.outputs.itemID }}'
 
           # Setting date field
-          $dateField = Find-ProjectField -ProjectNumber 1 -FieldName 'Date'
+          $dateFieldName = 'Date'
+          $dateField = Find-ProjectField -ProjectNumber 1 -FieldName $dateFieldName
           $dateValue = if ($Env:contentType -eq 'pullRequest') {
             $prNumber = ${{ github.event.pull_request.number }}
-            $res = Request-PullRequestCommit -RepositoryName 'Nero''s Project' -PullRequestNumber $prNumber -First 1
+            $res = Request-PullRequestCommit -RepositoryName 'ProjectAccess' -PullRequestNumber $prNumber -First 1
             $committedDate = $res.data.viewer.repository.pullRequest.commits.edges[0].node.commit.committedDate
 
             Write-Host "Pull request creation date: $ContentCreatedAt`nFirstCommitDate: $committedDate"
@@ -77,7 +78,7 @@ jobs:
             $Env:contentCreatedAt
           }
 
-          Write-Host "Setting date field to $dateValue."
+          Write-Host "Setting '$dateFieldName' to '$dateValue'."
           Edit-ProjectItemField -ProjectID $Env:projectID -ItemID $itemID -FieldID ($dateField.id) -DateValue $dateValue
           
           # Setting iteration field
@@ -95,13 +96,17 @@ jobs:
           $item = Find-ProjectItem -ProjectNumber 1 -ContentID $Env:contentID
 
           # Setting date field
-          $dateField = Find-ProjectField -ProjectNumber 1 -FieldName 'Date (Closed)'
+          $dateFieldName = 'Date (Closed)'
+          $dateField = Find-ProjectField -ProjectNumber 1 -FieldName $dateFieldName
           $dateValue = Get-Date $Env:contentClosedAt
+          Write-Host "Setting '$dateFieldName' to '$dateValue'."
           Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($dateField.id) -DateValue $dateValue
 
           # Setting iteration field
-          $itField = Find-ProjectField -ProjectNumber 1 -FieldName '1W (Closed)
+          $itFieldName = '1W (Closed)'
+          $itField = Find-ProjectField -ProjectNumber 1 -FieldName $itFieldName
           $itFieldValue = Get-ProjectFieldValue -Field $itField -Criteria $dateValue
+          Write-Host "Setting '$itFieldName' to '$($itFieldValue.name)'."
           Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($itField.id) -IterationIDValue $itFieldValue
         shell: pwsh
 
@@ -111,10 +116,14 @@ jobs:
           $item = Find-ProjectItem -ProjectNumber 1 -ContentID $Env:contentID
 
           # Setting date field
-          $dateField = Find-ProjectField -ProjectNumber 1 -FieldName 'Date (Closed)'
+          $dateFieldName = 'Date (Closed)'
+          $dateField = Find-ProjectField -ProjectNumber 1 -FieldName $dateFieldName
+          Write-Host "Setting '$dateFieldName' to '$dateValue'."
           Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($dateField.id) -DateValue ''
 
           # Setting iteration field
-          $itField = Find-ProjectField -ProjectNumber 1 -FieldName '1W (Closed)
+          $itFieldName = '1W (Closed)'
+          $itField = Find-ProjectField -ProjectNumber 1 -FieldName $itFieldName
+          Write-Host "Setting '$itFieldName' to ''."
           Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($itField.id) -IterationIDValue ''
         shell: pwsh
