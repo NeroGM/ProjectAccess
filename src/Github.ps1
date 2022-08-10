@@ -87,7 +87,7 @@ function Find-ProjectField {
             foreach ($edge in $edges) {
                 Write-Debug (ConvertTo-Json $edge.node)
                 if ($edge.node.name -eq $FieldName) {
-                    Write-Host 'Found field.'
+                    Write-Debug 'Found field.'
                     Write-Output $edge.node
                     return;
                 }
@@ -95,7 +95,7 @@ function Find-ProjectField {
             $cursor = $edges[$edges.Length-1].cursor
         }
 
-        Write-Host 'Field not found.'
+        Write-Debug 'Field not found.'
         Write-Output $null
     }
 }
