@@ -14,14 +14,11 @@ function Edit-ProjectItemField {
     [OutputType([PSObject])]
     param(
         [Parameter(Mandatory)]
-        [string]
-        $ProjectID,
+        [string] $ProjectID,
         [Parameter(Mandatory)]
-        [string]
-        $ItemID,
+        [string] $ItemID,
         [Parameter(Mandatory)]
-        [string]
-        $FieldID,
+        [string] $FieldID,
         
         [Parameter(Mandatory, ParameterSetName='Date')]
         [string] $DateValue,
@@ -153,6 +150,7 @@ function Get-ProjectFieldValue {
         }
 
         Write-Debug 'No field value found.'
+        Write-Output $null
     }
 }
 
@@ -267,11 +265,9 @@ function Register-ProjectItem {
     [OutputType([PSObject])]
     param(
         [Parameter(Mandatory)]
-        [string]
-        $ProjectID,
+        [string] $ProjectID,
         [Parameter(Mandatory)]
-        [string]
-        $ContentID
+        [string] $ContentID
     )
 
     process {
@@ -307,7 +303,7 @@ function Request-GithubUserData {
         }
         $userData = Invoke-RestMethod @splat
     
-        $userData
+        Write-Output $userData
     }
 }
 
@@ -456,8 +452,7 @@ function Send-GraphQLQuery {
     [OutputType([PSObject])]
     param(
         [Parameter(Mandatory)]
-        [string]
-        $Query
+        [string] $Query
     )
 
     process {
@@ -472,8 +467,6 @@ function Send-GraphQLQuery {
             'ContentType' = 'application/json'
         }
 
-        # Write-Host "Query: $Query"
-        # Write-Host "Body: $($params.body)"
         Write-Host '[ProjectAccess] Sending request...'
         $res = Invoke-RestMethod @params -StatusCodeVariable 'statusCode'
         Write-Host "[ProjectAccess] Request reponse status code: $statusCode"
@@ -494,13 +487,13 @@ function Set-GithubAuth {
     [OutputType([System.Void])]
     param(
         [Parameter(Mandatory)]
-        [string]
-        $Token
+        [string] $Token
     )
 
     process {
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute('UseDeclaredVarsMoreThanAssignments','',Scope='Global')]
         $script:GH_TOKEN = ConvertTo-SecureString $Token -AsPlainText -Force
         Write-Host 'Authentication token set.'
+        Write-Output $null
     }
 }
