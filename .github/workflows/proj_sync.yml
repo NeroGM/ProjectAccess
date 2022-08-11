@@ -119,14 +119,16 @@ jobs:
           $item = Find-ProjectItem -ProjectNumber 1 -ContentID $Env:contentID
 
           # Setting date field
+          $dateValue = '0001-01-01' # How to assign empty value ??
           $dateFieldName = 'Date (Closed)'
           $dateField = Find-ProjectField -ProjectNumber 1 -FieldName $dateFieldName
           Write-Host "Setting '$dateFieldName' to '$dateValue'."
-          Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($dateField.id) -DateValue ''
+          Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($dateField.id) -DateValue $dateValue
 
           # Setting iteration field
+          $itFieldIDValue = '5aa0ec08' # How to assign empty value ??
           $itFieldName = '1W (Closed)'
           $itField = Find-ProjectField -ProjectNumber 1 -FieldName $itFieldName
           Write-Host "Setting '$itFieldName' to ''."
-          Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($itField.id) -IterationIDValue ''
+          Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($itField.id) -IterationIDValue $itFieldIDValue
         shell: pwsh
