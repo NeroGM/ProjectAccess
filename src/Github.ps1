@@ -620,7 +620,7 @@ function Send-GraphQLQuery {
         }
 
         Write-Host '[ProjectAccess] Sending request...'
-        Write-Host "Query:`n$Query"
+        Write-Debug "Query:`n$Query"
         $res = Invoke-RestMethod @params -StatusCodeVariable 'statusCode'
         Write-Host "[ProjectAccess] Request reponse status code: $statusCode"
         if ($null -ne $res.errors) {
