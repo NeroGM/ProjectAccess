@@ -73,7 +73,10 @@ jobs:
             $committedDate = $res.data.viewer.repository.pullRequest.commits.edges[0].node.commit.committedDate
 
             Write-Host "Pull request creation date: $ContentCreatedAt`nFirstCommitDate: $committedDate"
-            if ($Env:contentCreatedAt -le $committedDate) { $Env:contentCreatedAt } else { $committedDate }
+
+            $date1 = Get-Date $Env:contentCreatedAt
+            $date2 = Get-Date $committedDate
+            if ($date1 -le $date2) { $Env:contentCreatedAt } else { $committedDate }
           } else {
             $Env:contentCreatedAt
           }
@@ -98,7 +101,7 @@ jobs:
           # Setting date field
           $dateFieldName = 'Date (Closed)'
           $dateField = Find-ProjectField -ProjectNumber 1 -FieldName $dateFieldName
-          $dateValue = Get-Date $Env:contentClosedAt
+          $dateValue = $Env:contentClosedAt
           Write-Host "Setting '$dateFieldName' to '$dateValue'."
           Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($dateField.id) -DateValue $dateValue
 
