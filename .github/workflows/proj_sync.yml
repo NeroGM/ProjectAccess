@@ -110,7 +110,7 @@ jobs:
           $itField = Find-ProjectField -ProjectNumber 1 -FieldName $itFieldName
           $itFieldValue = Get-ProjectFieldValue -Field $itField -Criteria $dateValue
           Write-Host "Setting '$itFieldName' to '$($itFieldValue.title)'."
-          Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($itField.id) -IterationIDValue $itFieldValue
+          Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($itField.id) -IterationIDValue ($itFieldValue.id)
         shell: pwsh
 
       - name: Set item fields (Reopened)
@@ -126,9 +126,9 @@ jobs:
           Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($dateField.id) -DateValue $dateValue
 
           # Setting iteration field
-          $itFieldIDValue = '5aa0ec08' # How to assign empty value ??
+          $itFieldIDValueID = '5aa0ec08' # How to assign empty value ??
           $itFieldName = '1W (Closed)'
           $itField = Find-ProjectField -ProjectNumber 1 -FieldName $itFieldName
           Write-Host "Setting '$itFieldName' to ''."
-          Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($itField.id) -IterationIDValue $itFieldIDValue
+          Edit-ProjectItemField -ProjectID $Env:projectID -ItemID ($item.id) -FieldID ($itField.id) -IterationIDValue $itFieldIDValueID
         shell: pwsh
